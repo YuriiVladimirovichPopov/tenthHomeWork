@@ -34,8 +34,7 @@ const mappedUser: UserViewModel = {
     login: user.login,
     email: user.email,
     createdAt: user.createdAt,
-    emailConfirmation: user.emailConfirmation,
-     
+    emailConfirmation: user.emailConfirmation  
 }
     req.user = mappedUser
     

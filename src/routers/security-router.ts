@@ -77,6 +77,6 @@ securityRouter.delete('/devices/:deviceId',async (req: Request, res: Response) =
       return res.status(sendStatus.FORBIDDEN_403).send({message: "Device's ID is not valid"})
     }
 
-  await deviceRepository.deleteDeviceById(user.id, deviceId)
-    return res.status(sendStatus.NO_CONTENT_204).send({message: "delete device"})  
+  await deviceRepository.deleteDeviceById(deviceId)
+    return res.status(sendStatus.NO_CONTENT_204).send({message: "delete"})  //здесь подправить мессадж
 })

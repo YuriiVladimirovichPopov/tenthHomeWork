@@ -1,5 +1,4 @@
 export type UserViewModel = {
-    deviceId: any
     id: string,
     login: string,
     email: string,

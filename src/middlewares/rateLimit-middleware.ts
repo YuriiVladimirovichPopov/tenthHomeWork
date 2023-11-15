@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { rateLimitCollection } from "../db/db";
 import { RateLimitMongoDbType } from "../types";
 import { sendStatus } from "../routers/send-status";
 
