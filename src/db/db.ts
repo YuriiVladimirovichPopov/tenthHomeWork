@@ -6,7 +6,7 @@ import { MongoClient } from 'mongodb'
 import { AuthSchema } from '../schemas/auth.schema';
 
 const dbName = "10_home_work"
-const url = process.env.mongoUrl || `mongodb://0.0.0.0:27017/${dbName}`
+const url = process.env.mongoUrl || `mongodb://0.0.0.0:27017`
 
 console.log(url)
 if (!url) {
@@ -19,7 +19,7 @@ export const TokenModel = mongoose.model('token', AuthSchema)
 
 export const  runDb = async () => {
   try {
-    await mongoose.connect(url + '/' + dbName)
+    await mongoose.connect(url)
     console.log('connected successfully to database')
   } catch (err) {
     console.log('error connecting')

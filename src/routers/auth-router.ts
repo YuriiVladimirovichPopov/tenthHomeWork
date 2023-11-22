@@ -75,7 +75,7 @@ authRouter.post('/password-recovery',
         return res.status(sendStatus.INTERNAL_SERVER_ERROR_500).send({ error });
     }
 })
-// TODO
+
 authRouter.post('/new-password', 
     forCreateNewPasswordValidation,
     customRateLimit, 
