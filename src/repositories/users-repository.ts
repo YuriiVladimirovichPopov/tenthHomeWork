@@ -114,11 +114,11 @@ export const usersRepository = {
         }
     },
 
-    async resetPasswordWithRecoveryCode( id: ObjectId, newPassword: string): Promise<any> {
+    async resetPasswordWithRecoveryCode( _id: string, newPassword: string): Promise<any> {
       
         const newHashedPassword = await authService.hashPassword(newPassword);
 
-        await UserModel.updateOne({ id: this._userMapper }, { $set: { passwordHash: newHashedPassword, recoveryCode: null} });
+        await UserModel.updateOne({ id: _id }, { $set: { passwordHash: newHashedPassword, recoveryCode: null} });
        
         return { success: true };
     }
