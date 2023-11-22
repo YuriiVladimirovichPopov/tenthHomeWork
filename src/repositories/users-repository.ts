@@ -119,7 +119,7 @@ export const usersRepository = {
         await UserModel.updateOne({ _id }, { $set: { passwordHash: newHashedPassword, recoveryCode: null} });
        
         return { success: true };
-        }
+    }
 }
 
 

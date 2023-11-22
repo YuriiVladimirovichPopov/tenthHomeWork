@@ -49,9 +49,9 @@ securityRouter.delete('/devices',async (req: Request, res: Response) => {
   
   const result = await deviceRepository.deleteAllDevicesExceptCurrent(isValid.userId, isValid.deviceId)
   if (result) {
-    res.status(sendStatus.NO_CONTENT_204).send({message: "Device" }) // TODO
+    res.status(sendStatus.NO_CONTENT_204).send({message: "Devices deleted" }) 
   } else {
-    res.status(sendStatus.INTERNAL_SERVER_ERROR_500).send({message: "Device!"}) // TODO
+    res.status(sendStatus.INTERNAL_SERVER_ERROR_500).send({message: "Server error"}) 
   }
 })
 
@@ -78,5 +78,5 @@ securityRouter.delete('/devices/:deviceId',async (req: Request, res: Response) =
     }
 
   await deviceRepository.deleteDeviceById(deviceId)
-    return res.status(sendStatus.NO_CONTENT_204).send({message: "delete"})  //здесь подправить мессадж
+    return res.status(sendStatus.NO_CONTENT_204).send({message: "Device's ID deleted "})  
 })

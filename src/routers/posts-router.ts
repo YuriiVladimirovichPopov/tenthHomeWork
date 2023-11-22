@@ -52,7 +52,6 @@ postsRouter.post('/:postId/comments',
       userLogin: req.user!.login
     }
     )
-  
     return res.status(sendStatus.CREATED_201).send(comment)
 })
 

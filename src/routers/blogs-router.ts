@@ -71,7 +71,6 @@ async (req: Request, res: Response) => {
       return res.sendStatus(sendStatus.NOT_FOUND_404)
 })
 
-// 5 get/blogs/:id       не меняем
 blogsRouter.get('/:id', async (req: RequestWithParams<getByIdParam>, res: Response<BlogViewModel>) => {
     const foundBlog = await blogService.findBlogById(req.params.id);
     if (!foundBlog) return res.sendStatus(sendStatus.NOT_FOUND_404);
@@ -79,7 +78,6 @@ blogsRouter.get('/:id', async (req: RequestWithParams<getByIdParam>, res: Respon
       return res.status(sendStatus.OK_200).send(foundBlog);
 })
 
-// 6 put/blogs/:id        не меняем
 blogsRouter.put('/:id',
   authorizationValidation,
   ...updateBlogValidation,
@@ -92,7 +90,6 @@ async (req: Request<getByIdParam, BlogInputModel>, res: Response<BlogViewModel>)
       return res.sendStatus(sendStatus.NO_CONTENT_204)
 })
 
-// 7 delete/blogs/:id       не меняем
 blogsRouter.delete('/:id', 
   authorizationValidation,
   inputValidationErrors, 
