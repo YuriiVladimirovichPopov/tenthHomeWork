@@ -6,7 +6,7 @@ import add from "date-fns/add"
 import { emailManager } from "../managers/email-manager";
 import { settings } from "../settings";
 import  Jwt  from "jsonwebtoken";
-import { usersCollection } from "../db/db";
+import { UserModel } from "../schemas/users.schema";
 import { randomUUID } from "crypto";
 import { UserCreateViewModel } from "../models/users/createUser";
 
@@ -55,18 +55,7 @@ export const authService = {
         }
         return user
     },
-    /*
-    async confirmEmail(code: string): Promise<UserViewModel | boolean> {
-        let user = await usersRepository.findUserByConfirmationCode(code)
-        if (!user) return false
-        if (user.emailConfirmation.isConfirmed) return false
-        if (user.emailConfirmation.confirmationCode !== code) return false
-        if (user.emailConfirmation.expirationDate < new Date()) return false
-            
-        let result = await usersRepository.createUser(user)
-            return result
-    },
-*/
+    
     async checkAndFindUserByToken(token: string) {
         try {
             const result: any = Jwt.verify(token, settings.JWT_SECRET)
@@ -83,7 +72,7 @@ export const authService = {
     },
 
     async updateConfirmEmailByUser(userId: string): Promise<boolean> {    
-        const foundUserByEmail = await usersCollection.updateOne({_id: new ObjectId(userId)}, {$set: {"emailConfirmation.isConfirmed": true}})
+        const foundUserByEmail = await UserModel.updateOne({_id: new ObjectId(userId)}, {$set: {"emailConfirmation.isConfirmed": true}})
             return foundUserByEmail.matchedCount === 1 
     },
     
@@ -97,7 +86,7 @@ export const authService = {
     },
 
     async findTokenInBlackList(userId: string, token: string): Promise<boolean>{
-        const userByToken = await usersCollection.findOne({_id: new ObjectId(userId), refreshTokenBlackList: {$in: [token]}})
+        const userByToken = await UserModel.findOne({_id: new ObjectId(userId), refreshTokenBlackList: {$in: [token]}})
             return !!userByToken
     },
 
@@ -111,5 +100,11 @@ export const authService = {
         } catch (error) {
           throw new Error('Failed to refresh tokens');
         }
-      }
+    },
+
+    async hashPassword(password: string): Promise<string> {
+        return bcrypt.hash(password, 10);
+    },
+
+
 }

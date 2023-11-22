@@ -1,14 +1,12 @@
-import { DeviceViewModel } from '../models/devices/deviceViewModel';
 import { DeviceMongoDbType } from '../types';
-import { deviceCollection } from '../db/db';
-import { ObjectId } from 'mongodb';
+import { DeviceModel } from '../schemas/device.schema';
 
 
 export const deviceRepository = {
     
     async findDeviceByUser(deviceId: string): Promise<DeviceMongoDbType | null> {
         try {
-            const device = await deviceCollection.findOne({ deviceId })
+            const device = await DeviceModel.findOne({ deviceId })
             return device
         } catch (error) {
             console.error('Error finding device by ID:', error)
@@ -18,7 +16,7 @@ export const deviceRepository = {
 
     async getAllDevicesByUser(userId: string): Promise<DeviceMongoDbType[]> {
         try {
-            const devices = await deviceCollection.find ({ userId }, {projection: {_id: 0, userId: 0}}).toArray();
+            const devices = await DeviceModel.find ({ userId }, {projection: {_id: 0, userId: 0}}).lean();
             return devices 
         } catch (error) {
             console.error('Error getting devices by userId:', error)
@@ -29,7 +27,7 @@ export const deviceRepository = {
 
     async deleteDeviceById(deviceId: string): Promise<boolean> {
         try {
-            const result = await deviceCollection.deleteOne({ deviceId })
+            const result = await DeviceModel.deleteOne({ deviceId })
             if (result.deletedCount === 1) {
                 return true
             } else {
@@ -44,7 +42,7 @@ export const deviceRepository = {
 
     async deleteAllDevicesExceptCurrent(userId: string, deviceId: string): Promise<boolean> {
         try {
-            await deviceCollection.deleteMany({ userId, deviceId: {$ne: deviceId} })
+            await DeviceModel.deleteMany({ userId, deviceId: {$ne: deviceId} })
             return true
         } catch (error) {
         throw new Error("Failed to refresh tokens")
@@ -53,7 +51,7 @@ export const deviceRepository = {
      // new function for testing all data
     async deleteAllDevices(): Promise<boolean> {
         try {
-            const result = await deviceCollection.deleteMany({});
+            const result = await DeviceModel.deleteMany({});
             return result.acknowledged === true
         } catch (error) {
             return false

@@ -10,7 +10,6 @@ export const authorizationValidation = (req: Request, res: Response, next: NextF
     const [authType, authData] = auth.split(' ')
     if (authType !== 'Basic' || authData !=='YWRtaW46cXdlcnR5') return res.sendStatus(401)
     return next()
-
 }
 
 export const inputValidationErrors = (req: Request, res: Response, next: NextFunction) => {

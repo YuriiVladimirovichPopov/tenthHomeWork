@@ -3,7 +3,7 @@ import {sendStatus} from "./send-status";
 import { authorizationValidation, 
           inputValidationErrors} from "../middlewares/input-validation-middleware";
 import { createPostValidation, updatePostValidation } from '../middlewares/validations/posts.validation';
-import { CommentsMongoDbType, RequestWithBody, RequestWithParams } from '../types';
+import { RequestWithBody, RequestWithParams } from '../types';
 import { PostsInputModel } from "../models/posts/postsInputModel";
 import { getByIdParam } from "../models/getById";
 import { PostsViewModel } from '../models/posts/postsViewModel';
@@ -18,7 +18,6 @@ import { commentsQueryRepository } from "../query repozitory/queryCommentsReposi
 import { authMiddleware } from "../middlewares/validations/auth.validation";
 import { createPostValidationForComment } from '../middlewares/validations/comments.validation';
 import { postsRepository } from "../repositories/posts-repository";
-import { UserViewModel } from '../models/users/userViewModel';
 
 
 export const postsRouter = Router({})
@@ -35,7 +34,10 @@ postsRouter.get('/:postId/comments', async (req: Request, res: Response<Paginate
       return res.status(sendStatus.OK_200).send(allCommentsForPostId)
 })
 
-postsRouter.post('/:postId/comments', authMiddleware, createPostValidationForComment, async (req: Request, res: Response) => {
+postsRouter.post('/:postId/comments', 
+  authMiddleware, 
+  createPostValidationForComment, 
+  async (req: Request, res: Response) => {
   const postWithId: PostsViewModel| null = await queryPostRepository.findPostById(req.params.postId);
     if(!postWithId) {
       return res.sendStatus(sendStatus.NOT_FOUND_404)
@@ -63,7 +65,6 @@ postsRouter.get('/', async (req: Request, res: Response<PaginatedPost<PostsViewM
     res.status(sendStatus.OK_200).send(allPosts);
 })
 
-//        не меняем    READY
 postsRouter.post('/', 
   authorizationValidation,
   createPostValidation,
@@ -82,7 +83,6 @@ async (req: RequestWithBody<PostsInputModel>, res: Response<PostsViewModel>) => 
   }
 })
 
-//    не меняем      READY
 postsRouter.get('/:id', async (req: RequestWithParams<getByIdParam>, res: Response) => {
   const foundPost = await postsService.findPostById(req.params.id)    
     if (!foundPost) {
@@ -92,12 +92,12 @@ postsRouter.get('/:id', async (req: RequestWithParams<getByIdParam>, res: Respon
   }
 })
 
- //        не меняем       READY
 postsRouter.put('/:id', 
   authorizationValidation,
   updatePostValidation,
 async (req: Request<getByIdParam, PostsInputModel>, res: Response<PostsViewModel>) => {
   const updatePost =  await postsService.updatePost(req.params.id, req.body)
+
     if (!updatePost) {
       return res.sendStatus(sendStatus.NOT_FOUND_404)
     } else {
@@ -105,7 +105,6 @@ async (req: Request<getByIdParam, PostsInputModel>, res: Response<PostsViewModel
     }
 })
 
-//          не меняем       READY
 postsRouter.delete('/:id', 
   authorizationValidation,
   inputValidationErrors,

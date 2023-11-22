@@ -1,10 +1,11 @@
 import { ObjectId} from "mongodb";
-import { usersCollection } from "../db/db";
 import { UsersMongoDbType } from '../types';
 import { UserPagination } from "../routers/helpers/pagination";
 import { UserViewModel } from '../models/users/userViewModel';
 import { PaginatedUser } from "../models/users/paginatedQueryUser";
 import { UserCreateViewModel } from "../models/users/createUser";
+import { UserModel } from "../schemas/users.schema";
+import { authService } from '../domain/auth-service';
 
 
 export const usersRepository = {
@@ -33,15 +34,15 @@ export const usersRepository = {
         }
 
         const result: UsersMongoDbType[] =
-        await usersCollection.find(filter, {projection: 
+        await UserModel.find(filter, {projection: 
             {passwordSalt: 0, passwordHash: 0}}) 
             
           .sort({[pagination.sortBy]: pagination.sortDirection})
           .skip(pagination.skip)
           .limit(pagination.pageSize)
-          .toArray()
+          .lean()
                    
-          const totalCount: number = await usersCollection.countDocuments(filter)
+          const totalCount: number = await UserModel.countDocuments(filter)
           const pageCount: number = Math.ceil(totalCount / pagination.pageSize)
     
           const res: PaginatedUser<UserViewModel[]> = {
@@ -55,7 +56,7 @@ export const usersRepository = {
     },
 
     async findUserById(id: string): Promise<UserViewModel | null> {
-        const userById = await usersCollection.findOne(
+        const userById = await UserModel.findOne(
             {_id: new ObjectId(id)}, 
             {  projection: {passwordSalt: 0, 
                             passwordHash: 0, 
@@ -68,22 +69,22 @@ export const usersRepository = {
     }, 
     
     async findByLoginOrEmail(loginOrEmail: string) {
-        const user = await usersCollection.findOne({$or: [{email: loginOrEmail}, {login: loginOrEmail}]})
+        const user = await UserModel.findOne({$or: [{email: loginOrEmail}, {login: loginOrEmail}]}).lean()
         return user
     },
 
     async findUserByEmail(email: string) {
-        const user = await usersCollection.findOne({email: email})
+        const user = await UserModel.findOne({email: email}).lean()
         return user
     },
 
     async findUserByConfirmationCode(emailConfirmationCode: string) {
-        const user = await usersCollection.findOne({"emailConfirmation.confirmationCode": emailConfirmationCode})
+        const user = await UserModel.findOne({"emailConfirmation.confirmationCode": emailConfirmationCode}).lean()
         return user
     },
     
     async createUser(newUser: UsersMongoDbType): Promise<UserCreateViewModel> { 
-        await usersCollection.insertOne(newUser)
+        await UserModel.insertMany(newUser)
         return {
             id: newUser._id.toString(),
             login: newUser.login,
@@ -97,19 +98,28 @@ export const usersRepository = {
             return false
         }
         
-        const foundUserById = await usersCollection.deleteOne({_id: new ObjectId(id)})
+        const foundUserById = await UserModel.deleteOne({_id: new ObjectId(id)})
         
         return foundUserById.deletedCount === 1
     }, 
    
     async deleteAllUsers(): Promise<boolean> {
         try {
-            const result = await usersCollection.deleteMany({});
+            const result = await UserModel.deleteMany({});
             return result.acknowledged === true
         } catch (error) {
             return false
         }
-    }
+    },
+
+    async resetPasswordWithRecoveryCode( _id:string, newPassword: string): Promise<any> {
+      
+        const newHashedPassword = await authService.hashPassword(newPassword);
+
+        await UserModel.updateOne({ _id }, { $set: { passwordHash: newHashedPassword, recoveryCode: null} });
+       
+        return { success: true };
+        }
 }
 
 

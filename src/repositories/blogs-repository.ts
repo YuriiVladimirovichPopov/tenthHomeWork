@@ -1,11 +1,10 @@
 import { ObjectId, WithId} from "mongodb";
-import { blogsCollection } from "../db/db";
 import { BlogInputModel } from "../models/blogs/blogsInputModel";
 import { BlogsMongoDbType } from '../types';
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
 import { PaginatedType } from "../routers/helpers/pagination";
 import { PaginatedBlog } from '../models/blogs/paginatedQueryBlog';
-
+import { BlogModel } from "../schemas/blogs.schema";
 
 export const blogsRepository = {
 
@@ -22,18 +21,18 @@ export const blogsRepository = {
 
     async findAllBlogs(pagination: PaginatedType): Promise<PaginatedBlog<BlogViewModel[]>> {
         let filter = {}
-        if(pagination.searchNameTerm ){
+        if(pagination.searchNameTerm) {
             filter = {name: {$regex: pagination.searchNameTerm || "", $options: 'i'}} 
         }
         const result: WithId<BlogsMongoDbType>[] =
-        await blogsCollection.find(filter) 
+        await BlogModel.find(filter) 
             
           .sort({[pagination.sortBy]: pagination.sortDirection})
           .skip(pagination.skip)
           .limit(pagination.pageSize)
-          .toArray()
+          .lean()
           
-          const totalCount: number = await blogsCollection.countDocuments(filter)
+          const totalCount: number = await BlogModel.countDocuments(filter)
           const pageCount: number = Math.ceil(totalCount / pagination.pageSize)
     
           const res: PaginatedBlog<BlogViewModel[]> = {
@@ -47,7 +46,7 @@ export const blogsRepository = {
     },
 
     async findBlogById(id: string):Promise<BlogViewModel | null> {
-        const blogById = await blogsCollection.findOne({_id: new ObjectId(id)},)
+        const blogById = await BlogModel.findOne({_id: new ObjectId(id)},)
         if(!blogById) {
             return null
         }
@@ -55,7 +54,7 @@ export const blogsRepository = {
     },    
     
     async createBlog(newBlog: BlogsMongoDbType): Promise<BlogViewModel> { 
-        await blogsCollection.insertOne(newBlog)
+        await BlogModel.insertMany([newBlog])
         return this._blogMapper(newBlog)
     },
 
@@ -64,24 +63,23 @@ export const blogsRepository = {
             return false
         }
         const _id = new ObjectId(id)
-        const foundBlogById = await blogsCollection.updateOne({_id}, {$set: {...data}})
+        const foundBlogById = await BlogModel.updateOne({_id}, {$set: {...data}})
         return foundBlogById.matchedCount === 1
     },
     
-    //7         не меняем
     async deleteBlog(id: string): Promise<boolean> {
         if (!ObjectId.isValid(id)) {
             return false
         }
         const _id = new ObjectId(id)
-        const foundBlogById = await blogsCollection.deleteOne({_id})
+        const foundBlogById = await BlogModel.deleteOne({_id})
         
         return foundBlogById.deletedCount === 1
     }, 
     
     async deleteAllBlogs(): Promise<boolean> {
         try {
-            const result = await blogsCollection.deleteMany({});
+            const result = await BlogModel.deleteMany({});
             return result.acknowledged === true
         } catch (error) {
             return false

@@ -29,6 +29,7 @@ import { EmailConfirmationType, UserViewModel } from './models/users/userViewMod
     createdAt: string,
     passwordHash: string,
     passwordSalt: string,
+    recoveryCode?: string,
     emailConfirmation: EmailConfirmationType,
     refreshTokenBlackList: string[]
   }

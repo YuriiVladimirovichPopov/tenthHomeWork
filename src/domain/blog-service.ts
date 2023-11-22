@@ -9,7 +9,7 @@ import { PaginatedType } from "../routers/helpers/pagination";
 
 export const blogService = {
     
-    async findAllBlogs(pagination: PaginatedType): Promise<PaginatedBlog<BlogViewModel[]>> {     //tyt nado dobavit functions
+    async findAllBlogs(pagination: PaginatedType): Promise<PaginatedBlog<BlogViewModel[]>> {     
         return await blogsRepository.findAllBlogs(pagination)
     },
 

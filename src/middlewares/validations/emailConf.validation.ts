@@ -1,10 +1,10 @@
 import { body } from "express-validator"
 import { inputValidationErrors } from "../input-validation-middleware"; 
-import { usersRepository } from "../../repositories/users-repository";
+import { usersRepository } from '../../repositories/users-repository';
 
     const emailConfirmationValidation = body('email')
-    .isString()
-       .trim()
+                                                    .isString()
+                                                    .trim()
                                                     .isEmail()
                                                     .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
                                                     .withMessage('incorrect email')
@@ -18,5 +18,17 @@ import { usersRepository } from "../../repositories/users-repository";
                                                         }
                                                         return true;
                                                         })
+    const recoveryCodeByEmail = body('email')
+                                            .isString()
+                                            .withMessage('must be a valid email')
+                                            .isEmail()
+                                            .custom(async (email) => {
+                                                const user = await usersRepository.findUserByEmail(email)
+                                                if (!user) {
+                                                    throw new Error ('User with this email not found')
+                                                }
+                                                return true
+                                            })
 
-export const emailConfValidation = [emailConfirmationValidation, inputValidationErrors]                                                        
+export const emailConfValidation = [emailConfirmationValidation, inputValidationErrors]
+export const emailWithRecoveryCodeValidation = [recoveryCodeByEmail, inputValidationErrors]

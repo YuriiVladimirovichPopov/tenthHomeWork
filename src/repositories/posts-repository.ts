@@ -1,12 +1,11 @@
-import { commentsCollection, postsCollection } from '../db/db';
 import { CommentsMongoDbType, PostsMongoDbType } from '../types';
 import { ObjectId } from 'mongodb';
 import { PostsInputModel } from '../models/posts/postsInputModel';
 import { PostsViewModel } from '../models/posts/postsViewModel';
 import { blogsRepository } from './blogs-repository';
-import { randomUUID } from 'crypto';
 import { CommentViewModel } from '../models/comments/commentViewModel';
-
+import { CommentModel } from '../schemas/comments.schema';
+import { PostModel } from '../schemas/posts.schema';
  
 export const postsRepository = {
 
@@ -22,7 +21,6 @@ export const postsRepository = {
         }
     },
     
-    //10     READY
     async createdPostForSpecificBlog(model: PostsInputModel): 
     Promise<PostsViewModel | null> {
         const blog = await blogsRepository.findBlogById(model.blogId)
@@ -38,7 +36,7 @@ export const postsRepository = {
             blogName: blog.name,
             createdAt: new Date().toISOString()
         }
-    await postsCollection.insertOne(createPostForBlog)
+    await PostModel.insertMany(createPostForBlog)
     return this._postMapper(createPostForBlog)
     },
 
@@ -53,7 +51,7 @@ export const postsRepository = {
              createdAt: new Date().toISOString(),
         }
    
-    await commentsCollection.insertOne({...createCommentForPost})
+    await CommentModel.insertMany({...createCommentForPost})
        return  {
          id: createCommentForPost._id.toString(),
          content: createCommentForPost.content,
@@ -62,23 +60,20 @@ export const postsRepository = {
         }
    },
 
-    //11       READY
     async updatePost(id: string, data: PostsInputModel): Promise<PostsViewModel | boolean> {
-        const foundPostById = await postsCollection.updateOne({_id: new ObjectId(id)}, {$set: {... data}  })
+        const foundPostById = await PostModel.updateOne({_id: new ObjectId(id)}, {$set: {... data}  })
             return foundPostById.matchedCount === 1
     },
 
-    //12     READY
     async deletePost(id: string): Promise<PostsViewModel | boolean> {
-        const foundPostById = await postsCollection.deleteOne({_id: new ObjectId(id)})
+        const foundPostById = await PostModel.deleteOne({_id: new ObjectId(id)})
         
         return foundPostById.deletedCount === 1;
     },
 
-    //13      READY
     async deleteAllPosts(): Promise<boolean> {
         try {
-            const deletedPosts = await postsCollection.deleteMany({});
+            const deletedPosts = await PostModel.deleteMany({});
             return deletedPosts.acknowledged === true
         } catch(error) {
             return false;

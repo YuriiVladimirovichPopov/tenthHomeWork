@@ -1,12 +1,14 @@
 import nodemailer from 'nodemailer';
 
+
+
 export const emailAdapter = {
     async sendEmail(email: string, subject: string, code: string) {
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-              user: 'papanchik2021@gmail.com',
-              pass: 'byfdsqtvsxaqvmua'
+              user: process.env.MAIL_USER,
+              pass: process.env.PASSWORD_USER
             }
           })
          
@@ -20,5 +22,24 @@ export const emailAdapter = {
               </p>`
             })
         return !!info
+    },
+
+    async sendEmailWithRecoveryCode(email: string, recoveryCode: string) {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.PASSWORD_USER
+        }
+      })
+      const info = await transporter.sendMail({
+        from: '"PapanNumberOne" <papanchik2021@gmail.com>', 
+        to: email, 
+        html:  ` <h1>Password recovery</h1>
+          <p>To finish password recovery please follow the link below:
+             <a href='https://somesite.com/password-recovery?recoveryCode=${recoveryCode}'>recovery password</a>
+         </p>`
+        })
+    return !!info
     }
 }

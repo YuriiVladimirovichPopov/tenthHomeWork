@@ -10,7 +10,6 @@ const loginValidation = body('login')
                                             .withMessage('incorrect login')
                                             .custom(async (login) => {
                                                 const user = await usersRepository.findByLoginOrEmail(login);
-                                                //console.log(login, user, "login and user");
                                                 if (user) {
                                                     throw new Error('User already exists');
                                                 }
@@ -30,9 +29,7 @@ const emailValidation = body('email')
                                             .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
                                             .withMessage('incorrect email')
                                             .custom(async (email) => {
-                                                //console.log(email, 'email')
                                                 const user = await usersRepository.findByLoginOrEmail(email);
-                                                //console.log(user, 'user')
                                                 if (user) {
                                                     throw new Error('User already exists'); 
                                                 }

@@ -1,12 +1,15 @@
-import { commentsCollection, postsCollection } from '../db/db';
+
 import { CommentsMongoDbType, PostsMongoDbType } from '../types';
 import { PaginatedType } from "../routers/helpers/pagination";
-import { ObjectId, WithId, Filter } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
 import { PaginatedPost } from '../models/posts/paginatedQueryPost';
 import { PostsViewModel } from "../models/posts/postsViewModel";
 import { PaginatedComment } from '../models/comments/paginatedQueryComment';
+import mongoose from "mongoose";
+import { CommentModel } from '../schemas/comments.schema';
+import { PostModel } from '../schemas/posts.schema';
 
-
+const filter: mongoose.FilterQuery<PostsMongoDbType> = {};
 export const queryPostRepository = {
 
     _postMapper(post: PostsMongoDbType): PostsViewModel {
@@ -21,27 +24,25 @@ export const queryPostRepository = {
             }
     },
 
-    //3         READY
     async findAllPostsByBlogId(blogId: string, pagination: PaginatedType): Promise<PaginatedPost<PostsViewModel>> {    
         const filter = {blogId}
         return this._findPostsByFilter(filter, pagination)
     },
 
-    //8       меняем(добавляем пагинацию)  READY
     async findAllPosts(pagination: PaginatedType):
      Promise<PaginatedPost<PostsViewModel>> {
         const filter = {}
         return this._findPostsByFilter(filter, pagination)
     },
 
-    async _findPostsByFilter(filter: Filter<PostsMongoDbType>, pagination: PaginatedType): Promise<PaginatedPost<PostsViewModel>> {
-        const result : WithId<PostsMongoDbType>[] = await postsCollection.find(filter)
+    async _findPostsByFilter(filter: {}, pagination: PaginatedType): Promise<PaginatedPost<PostsViewModel>> { //TODO filter: {}
+        const result : WithId<PostsMongoDbType>[] = await PostModel.find(filter)
                     .sort({[pagination.sortBy]: pagination.sortDirection })
                     .skip(pagination.skip)
                     .limit(pagination.pageSize)
-                    .toArray()
+                    .lean()
 
-        const totalCount: number = await postsCollection.countDocuments(filter)
+        const totalCount: number = await PostModel.countDocuments(filter)
         const pageCount: number = Math.ceil(totalCount / pagination.pageSize)
 
     return {
@@ -58,7 +59,7 @@ export const queryPostRepository = {
             return null
         }
         const _id = new ObjectId(id)
-        const findPost = await postsCollection.findOne({_id: _id})
+        const findPost = await PostModel.findOne({_id: _id})
             if (!findPost) {
         return null
             }
@@ -67,13 +68,13 @@ export const queryPostRepository = {
 
     async findAllCommentsforPostId(pagination: PaginatedType): Promise<PaginatedComment<CommentsMongoDbType>> {
         const filter = {name: { $regex :pagination.searchNameTerm, $options: 'i'}}
-        const result : WithId<WithId<CommentsMongoDbType>>[] = await commentsCollection.find(filter)
+        const result : WithId<WithId<CommentsMongoDbType>>[] = await CommentModel.find(filter)
     
     .sort({[pagination.sortBy]: pagination.sortDirection})
     .skip(pagination.skip)
     .limit(pagination.pageSize)
-    .toArray()
-        const totalCount: number = await commentsCollection.countDocuments(filter)
+    .lean()
+        const totalCount: number = await CommentModel.countDocuments(filter)
         const pageCount: number = Math.ceil(totalCount / pagination.pageSize)
 
     return {

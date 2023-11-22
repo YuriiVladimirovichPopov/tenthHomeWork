@@ -7,12 +7,10 @@ import { UserViewModel } from '../models/users/userViewModel';
 import { UserInputModel } from "../models/users/userInputModel";
 import { usersRepository } from "../repositories/users-repository";
 import { CodeType } from "../models/code";
-
 import { authService } from "../domain/auth-service";
 import { validateCode } from "../middlewares/validations/code.validation";
-import { emailConfValidation } from "../middlewares/validations/emailConf.validation";
+import { emailConfValidation, emailWithRecoveryCodeValidation } from "../middlewares/validations/emailConf.validation";
 import { emailManager } from "../managers/email-manager";
-import { usersCollection, deviceCollection } from '../db/db';
 import { randomUUID } from 'crypto';
 import { add } from "date-fns";
 import { error } from 'console';
@@ -20,7 +18,10 @@ import { ObjectId } from 'mongodb';
 import { createUserValidation } from "../middlewares/validations/users.validation";
 import { customRateLimit } from "../middlewares/rateLimit-middleware";
 import { deviceRepository } from '../repositories/device-repository';
-
+import { DeviceModel } from "../schemas/device.schema";
+import { UserModel } from '../schemas/users.schema';
+import { emailAdapter } from "../adapters/email-adapter";
+import { forCreateNewPasswordValidation } from "../middlewares/validations/auth.recoveryPass.validation";
 
 export const authRouter = Router ({})
 
@@ -41,7 +42,7 @@ authRouter.post('/login', customRateLimit, async(req: Request, res: Response) =>
                 deviceId,
                 userId
             }
-            await deviceCollection.insertOne(newDevice)
+            await DeviceModel.insertMany(newDevice)
             res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})   
             .status(sendStatus.OK_200).send({accessToken: accessToken})
             return
@@ -50,7 +51,52 @@ authRouter.post('/login', customRateLimit, async(req: Request, res: Response) =>
         }
 })
 
-authRouter.get('/me', authMiddleware, async(req: RequestWithUser<UserViewModel>, res: Response) => {    
+authRouter.post('/password-recovery', 
+    emailWithRecoveryCodeValidation,
+    customRateLimit, 
+    async(req: Request, res: Response) => {
+        const email = req.body.email
+        const user = await usersRepository.findUserByEmail(email)
+
+        if (!user) {
+            return res.status(sendStatus.NOT_FOUND_404).send('User not found')
+        }
+        const recoveryCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+        await UserModel.updateOne({ _id: user._id }, { $set: {recoveryCode} });
+        await UserModel.findOne({ _id: user._id })
+        await UserModel.findOne({ recoveryCode })
+       
+    try { 
+        emailAdapter.sendEmailWithRecoveryCode(user.email, recoveryCode); 
+            return res.status(sendStatus.NO_CONTENT_204).send({ message: 'Ok' });
+      
+    } catch (error) {
+        return res.status(sendStatus.INTERNAL_SERVER_ERROR_500).send({ error });
+    }
+})
+// TODO
+authRouter.post('/new-password', 
+    forCreateNewPasswordValidation,
+    customRateLimit, 
+    async(req: Request, res: Response) => {
+        const { newPassword, recoveryCode } = req.body;
+        const user = await UserModel.findOne({ recoveryCode });
+            if (!user) {
+                return res.status(sendStatus.BAD_REQUEST_400).send({ errorsMessages: [{
+                    message: 'send recovery code',
+                    field: 'recoveryCode'
+                }]});
+            }
+        const result = await usersRepository.resetPasswordWithRecoveryCode(user.id, newPassword);
+            if (result.success) {
+                return res.status(sendStatus.NO_CONTENT_204).send('code is valid and new password is accepted');
+            }
+})
+
+authRouter.get('/me', 
+    authMiddleware, 
+    async(req: RequestWithUser<UserViewModel>, res: Response) => {    
     if(!req.user){
         return res.sendStatus(sendStatus.UNAUTHORIZED_401)
     } else {
@@ -63,22 +109,29 @@ authRouter.get('/me', authMiddleware, async(req: RequestWithUser<UserViewModel>,
     }
 })
 
-authRouter.post('/registration-confirmation', customRateLimit, validateCode, async(req: RequestWithBody<CodeType>, res: Response) => {
+authRouter.post('/registration-confirmation', 
+    customRateLimit, 
+    validateCode, 
+    async(req: RequestWithBody<CodeType>, res: Response) => {
     const currentDate = new Date()
     
     const user = await usersRepository.findUserByConfirmationCode(req.body.code)
     
     if(!user) {
-        return res.status(sendStatus.BAD_REQUEST_400).send({ errorsMessages: [{ message: 'User not found by this code', field: "code" }] })
+        return res.status(sendStatus.BAD_REQUEST_400)
+            .send({ errorsMessages: [{ message: 'User not found by this code', field: 'code' }] })
     } 
     if (user.emailConfirmation.isConfirmed) {
-        return res.status(sendStatus.BAD_REQUEST_400).send({ errorsMessages: [{ message: 'Email is confirmed', field: "code" }] })
+        return res.status(sendStatus.BAD_REQUEST_400)
+            .send({ errorsMessages: [{ message: 'Email is confirmed', field: 'code' }] })
     }
     if (user.emailConfirmation.expirationDate < currentDate ) {
-        return res.status(sendStatus.BAD_REQUEST_400).send({ errorsMessages: [{ message: 'The code is exparied', field: "code" }] })
+        return res.status(sendStatus.BAD_REQUEST_400)
+            .send({ errorsMessages: [{ message: 'The code is exparied', field: 'code' }] })
     }
     if (user.emailConfirmation.confirmationCode !== req.body.code) {  
-        return res.status(sendStatus.BAD_REQUEST_400).send({ errorsMessages: [{ message: 'Invalid code', field: "code" }] })
+        return res.status(sendStatus.BAD_REQUEST_400)
+            .send({ errorsMessages: [{ message: 'Invalid code', field: 'code' }] })
     }
    
     await authService.updateConfirmEmailByUser(user._id.toString())
@@ -87,7 +140,9 @@ authRouter.post('/registration-confirmation', customRateLimit, validateCode, asy
         return res.sendStatus(sendStatus.NO_CONTENT_204)
 })
 
-authRouter.post('/registration', customRateLimit, createUserValidation, 
+authRouter.post('/registration', 
+    customRateLimit, 
+    createUserValidation, 
 
     async(req: RequestWithBody<UserInputModel>, res: Response) => {
         
@@ -100,7 +155,9 @@ authRouter.post('/registration', customRateLimit, createUserValidation,
     }
 })
 
-authRouter.post('/registration-email-resending', customRateLimit, emailConfValidation, 
+authRouter.post('/registration-email-resending', 
+    customRateLimit, 
+    emailConfValidation, 
     async(req: RequestWithBody<UsersMongoDbType>, res: Response) => {
     
     const user = await usersRepository.findUserByEmail(req.body.email)
@@ -109,22 +166,22 @@ authRouter.post('/registration-email-resending', customRateLimit, emailConfValid
     }
 
     if (user.emailConfirmation.isConfirmed) {
-        return res.status(sendStatus.BAD_REQUEST_400).send({info: "isConfirmed" })
+        return res.status(sendStatus.BAD_REQUEST_400).send({message: 'isConfirmed' })
     }
 
-    await usersCollection.updateOne({_id: user!._id}, {$set: {
+    await UserModel.updateOne({_id: user!._id}, {$set: {
             emailConfirmation: {confirmationCode: randomUUID(),
                                 expirationDate: add(new Date(), {
                                     minutes: 60
                                 }),
                                 isConfirmed: false}}});
     
-    const updatedUser = await usersCollection.findOne({_id: user!._id})
+    const updatedUser = await UserModel.findOne({_id: user!._id})
     
     try {
         await emailManager.sendEmail(updatedUser!.email, updatedUser!.emailConfirmation.confirmationCode)
     } catch {
-        error("email is already confirmed", error)
+        error('email is already confirmed', error)
     }
         return res.sendStatus(sendStatus.NO_CONTENT_204)
 })
@@ -143,7 +200,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
         const validToken = await  authService.findTokenInBlackList(user.id, refreshToken);
             if(validToken) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Token'}) 
 
-        const device = await deviceCollection.findOne({ deviceId: isValid.deviceId })
+        const device = await DeviceModel.findOne({ deviceId: isValid.deviceId })
             if(!device) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'No device'})
         
         const lastActiveDate = await jwtService.getLastActiveDate(refreshToken)
@@ -153,9 +210,8 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
         const tokens = await authService.refreshTokens(user.id, device.deviceId)
 
         const newLastActiveDate = await jwtService.getLastActiveDate(tokens.newRefreshToken) 
-        await deviceCollection.updateOne({deviceId: device.deviceId}, {$set: {lastActiveDate: newLastActiveDate}})
+        await DeviceModel.updateOne({deviceId: device.deviceId}, {$set: {lastActiveDate: newLastActiveDate}})
 
-        await usersCollection.updateOne({_id: new ObjectId(user.id)}, { $push : { refreshTokenBlackList: refreshToken } })
             res.cookie('refreshToken', tokens.newRefreshToken, {httpOnly: true, secure: true})
                 return res.status(sendStatus.OK_200).send({ accessToken: tokens.accessToken })
 
@@ -178,7 +234,7 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
         const validToken = await  authService.findTokenInBlackList(user.id, refreshToken); 
             if(validToken)return res.sendStatus(sendStatus.UNAUTHORIZED_401); 
 
-        const device = await deviceCollection.findOne({ deviceId: isValid.deviceId })
+        const device = await DeviceModel.findOne({ deviceId: isValid.deviceId })
             if(!device) return res.status(sendStatus.UNAUTHORIZED_401).send({ message: 'Invalid refresh token' })
 
         const lastActiveDate = await jwtService.getLastActiveDate(refreshToken)
@@ -186,7 +242,6 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
                 return res.status(sendStatus.UNAUTHORIZED_401).send({message: 'Invalid refresh token'})
     
         await deviceRepository.deleteDeviceById(isValid.deviceId)
-    await usersCollection.updateOne({_id: new ObjectId(user.id)}, { $push : { refreshTokenBlackList: refreshToken } });
         
             res.clearCookie('refreshToken', { httpOnly: true, secure: true });
             res.sendStatus(sendStatus.NO_CONTENT_204);
