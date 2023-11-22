@@ -6,6 +6,7 @@ import { PaginatedUser } from "../models/users/paginatedQueryUser";
 import { UserCreateViewModel } from "../models/users/createUser";
 import { UserModel } from "../schemas/users.schema";
 import { authService } from '../domain/auth-service';
+import { randomUUID } from 'crypto';
 
 
 export const usersRepository = {
@@ -16,7 +17,8 @@ export const usersRepository = {
             login: user.login,
             email: user.email,             
             createdAt: user.createdAt,
-            emailConfirmation: user.emailConfirmation
+            emailConfirmation: user.emailConfirmation,
+            recoveryCode: randomUUID()
         }
     },
 
@@ -112,11 +114,11 @@ export const usersRepository = {
         }
     },
 
-    async resetPasswordWithRecoveryCode( _id:string, newPassword: string): Promise<any> {
+    async resetPasswordWithRecoveryCode( id: ObjectId, newPassword: string): Promise<any> {
       
         const newHashedPassword = await authService.hashPassword(newPassword);
 
-        await UserModel.updateOne({ _id }, { $set: { passwordHash: newHashedPassword, recoveryCode: null} });
+        await UserModel.updateOne({ id: this._userMapper }, { $set: { passwordHash: newHashedPassword, recoveryCode: null} });
        
         return { success: true };
     }

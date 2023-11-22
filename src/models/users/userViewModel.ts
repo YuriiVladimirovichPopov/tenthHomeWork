@@ -5,7 +5,8 @@ export type UserViewModel = {
     createdAt: string,
     //passwordSalt: string,
     //passwordHash: string
-    emailConfirmation: EmailConfirmationType 
+    emailConfirmation: EmailConfirmationType,
+    recoveryCode: string
 }
 
 export type EmailConfirmationType = {
