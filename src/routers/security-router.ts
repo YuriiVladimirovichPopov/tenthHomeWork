@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { sendStatus } from "./send-status";
-import { authService } from '../domain/auth-service';
+import { authService } from '../application/auth-service';
 import { usersRepository } from '../repositories/users-repository';
 import { deviceRepository } from '../repositories/device-repository';
 

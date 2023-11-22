@@ -1,5 +1,5 @@
 import { Request, Response, Router } from "express";
-import { businessService } from "../domain/business-service";
+import { businessService } from "../application/business-service";
 import { sendStatus } from "./send-status";
 
 export const emailsRouter = Router({})

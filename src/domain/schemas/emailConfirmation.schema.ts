@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { EmailConfirmationType } from '../models/users/userViewModel';
+import { EmailConfirmationType } from '../../models/users/userViewModel';
 
 export const EmailConfirmationSchema = new mongoose.Schema<EmailConfirmationType>({
     isConfirmed: {type: Boolean, required: true},

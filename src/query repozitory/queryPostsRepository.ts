@@ -6,8 +6,8 @@ import { PaginatedPost } from '../models/posts/paginatedQueryPost';
 import { PostsViewModel } from "../models/posts/postsViewModel";
 import { PaginatedComment } from '../models/comments/paginatedQueryComment';
 import mongoose from "mongoose";
-import { CommentModel } from '../schemas/comments.schema';
-import { PostModel } from '../schemas/posts.schema';
+import { CommentModel } from '../domain/schemas/comments.schema';
+import { PostModel } from '../domain/schemas/posts.schema';
 
 const filter: mongoose.FilterQuery<PostsMongoDbType> = {};
 export const queryPostRepository = {

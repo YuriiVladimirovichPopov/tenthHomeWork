@@ -1,5 +1,5 @@
 import {Request, Response, Router } from "express";
-import { blogService} from "../domain/blog-service"
+import { blogService} from "../application/blog-service"
 import { sendStatus } from "./send-status";
 import { authorizationValidation,
           inputValidationErrors } from "../middlewares/input-validation-middleware";
@@ -14,7 +14,7 @@ import { getPaginationFromQuery } from './helpers/pagination';
 import { PaginatedBlog } from '../models/blogs/paginatedQueryBlog';
 import { PaginatedPost } from '../models/posts/paginatedQueryPost';
 import { PostsInputModel } from '../models/posts/postsInputModel';
-import { postsService } from "../domain/post-service";
+import { postsService } from "../application/post-service";
 import { PostsViewModel } from "../models/posts/postsViewModel";
 
 

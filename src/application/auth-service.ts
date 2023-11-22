@@ -6,7 +6,7 @@ import add from "date-fns/add"
 import { emailManager } from "../managers/email-manager";
 import { settings } from "../settings";
 import  Jwt  from "jsonwebtoken";
-import { UserModel } from "../schemas/users.schema";
+import { UserModel } from "../domain/schemas/users.schema";
 import { randomUUID } from "crypto";
 import { UserCreateViewModel } from "../models/users/createUser";
 

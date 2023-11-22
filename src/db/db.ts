@@ -3,7 +3,7 @@ dotenv.config()
 import mongoose from 'mongoose'
 
 import { MongoClient } from 'mongodb'
-import { AuthSchema } from '../schemas/auth.schema';
+import { AuthSchema } from '../domain/schemas/auth.schema';
 
 const dbName = "10_home_work"
 const url = process.env.mongoUrl || `mongodb://0.0.0.0:27017`

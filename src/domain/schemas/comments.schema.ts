@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { CommentsMongoDbType } from '../types';
+import { CommentsMongoDbType } from '../../types';
 import { ObjectId } from 'mongodb';
 import { commentatorInfoSchema } from './commentatorInfo.schema';
 

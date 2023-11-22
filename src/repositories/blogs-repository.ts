@@ -4,7 +4,7 @@ import { BlogsMongoDbType } from '../types';
 import { BlogViewModel } from '../models/blogs/blogsViewModel';
 import { PaginatedType } from "../routers/helpers/pagination";
 import { PaginatedBlog } from '../models/blogs/paginatedQueryBlog';
-import { BlogModel } from "../schemas/blogs.schema";
+import { BlogModel } from "../domain/schemas/blogs.schema";
 
 export const blogsRepository = {
 

@@ -5,7 +5,7 @@ import { EmailConfirmationType, UserViewModel } from './models/users/userViewMod
 
   export type BlogsMongoDbType = {
       _id : ObjectId,
-      name: string,
+      name: string | null,
       description: string,
       websiteUrl: string,
       createdAt: string,

@@ -7,7 +7,7 @@ import { RequestWithBody, RequestWithParams } from '../types';
 import { PostsInputModel } from "../models/posts/postsInputModel";
 import { getByIdParam } from "../models/getById";
 import { PostsViewModel } from '../models/posts/postsViewModel';
-import { postsService } from "../domain/post-service";
+import { postsService } from "../application/post-service";
 import { queryPostRepository } from "../query repozitory/queryPostsRepository";
 import { getPaginationFromQuery } from './helpers/pagination';
 import { PaginatedPost } from '../models/posts/paginatedQueryPost';

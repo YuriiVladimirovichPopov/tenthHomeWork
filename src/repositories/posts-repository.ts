@@ -4,8 +4,8 @@ import { PostsInputModel } from '../models/posts/postsInputModel';
 import { PostsViewModel } from '../models/posts/postsViewModel';
 import { blogsRepository } from './blogs-repository';
 import { CommentViewModel } from '../models/comments/commentViewModel';
-import { CommentModel } from '../schemas/comments.schema';
-import { PostModel } from '../schemas/posts.schema';
+import { CommentModel } from '../domain/schemas/comments.schema';
+import { PostModel } from '../domain/schemas/posts.schema';
  
 export const postsRepository = {
 

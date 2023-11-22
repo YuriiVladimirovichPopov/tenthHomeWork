@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { PostsMongoDbType } from '../types';
+import { PostsMongoDbType } from '../../types';
 import { ObjectId } from 'mongodb';
 
 

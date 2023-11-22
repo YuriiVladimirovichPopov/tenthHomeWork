@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { UsersMongoDbType } from '../types';
+import { UsersMongoDbType } from '../../types';
 import { ObjectId } from 'mongodb';
 import { EmailConfirmationSchema } from './emailConfirmation.schema';
 

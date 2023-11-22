@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { jwtService } from "../../application/jwt-service";
 import { sendStatus } from "../../routers/send-status";
-import { UserModel } from "../../schemas/users.schema";
+import { UserModel } from "../../domain/schemas/users.schema";
 import { UserViewModel } from '../../models/users/userViewModel';
 import { ObjectId } from 'mongodb';
 

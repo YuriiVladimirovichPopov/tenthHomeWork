@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { DeviceMongoDbType } from '../types';
+import { DeviceMongoDbType } from '../../types';
 import { ObjectId } from 'mongodb';
 
 

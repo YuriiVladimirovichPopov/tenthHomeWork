@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { AuthViewModel } from '../models/auth';
+import { AuthViewModel } from '../../models/auth';
 
 
 export const AuthSchema = new mongoose.Schema<AuthViewModel>({ 

@@ -1,5 +1,5 @@
 import { DeviceMongoDbType } from '../types';
-import { DeviceModel } from '../schemas/device.schema';
+import { DeviceModel } from '../domain/schemas/device.schema';
 
 
 export const deviceRepository = {

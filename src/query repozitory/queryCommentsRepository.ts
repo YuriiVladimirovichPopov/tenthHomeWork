@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { CommentModel } from '../schemas/comments.schema';
+import { CommentModel } from '../domain/schemas/comments.schema';
 import { PaginatedType } from "../routers/helpers/pagination"
 import { PaginatedComment } from "../models/comments/paginatedQueryComment"
 import { CommentsMongoDbType } from '../types';

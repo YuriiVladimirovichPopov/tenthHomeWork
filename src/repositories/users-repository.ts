@@ -4,8 +4,8 @@ import { UserPagination } from "../routers/helpers/pagination";
 import { UserViewModel } from '../models/users/userViewModel';
 import { PaginatedUser } from "../models/users/paginatedQueryUser";
 import { UserCreateViewModel } from "../models/users/createUser";
-import { UserModel } from "../schemas/users.schema";
-import { authService } from '../domain/auth-service';
+import { UserModel } from "../domain/schemas/users.schema";
+import { authService } from '../application/auth-service';
 import { randomUUID } from 'crypto';
 
 

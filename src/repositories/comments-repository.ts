@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { CommentModel } from '../schemas/comments.schema';
+import { CommentModel } from '../domain/schemas/comments.schema';
 import { CommentsMongoDbType } from "../types"
 
 

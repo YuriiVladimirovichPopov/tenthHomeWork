@@ -8,7 +8,7 @@ import { getUsersPagination } from './helpers/pagination';
 import { QueryUserRepository } from "../query repozitory/queryUserRepository";
 import { UserViewModel } from "../models/users/userViewModel";
 import { PaginatedUser } from "../models/users/paginatedQueryUser";
-import { authService } from "../domain/auth-service";
+import { authService } from "../application/auth-service";
 import { createUserValidation } from "../middlewares/validations/users.validation";
 
 export const usersRouter = Router({})
