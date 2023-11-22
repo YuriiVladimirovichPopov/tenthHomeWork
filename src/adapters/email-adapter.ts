@@ -13,7 +13,7 @@ export const emailAdapter = {
           })
          
             const info = await transporter.sendMail({
-              from: '"PapanNumberOne" <papanchik2021@gmail.com>', 
+              from: '"Papan" <papanchik2021@gmail.com>', 
               to: email, 
               subject: subject,  
               html:  `<h1>Thank for your registration</h1>
@@ -33,7 +33,7 @@ export const emailAdapter = {
         }
       })
       const info = await transporter.sendMail({
-        from: '"PapanNumberOne" <papanchik2021@gmail.com>', 
+        from: '"Papan" <papanchik2021@gmail.com>', 
         to: email, 
         html:  ` <h1>Password recovery</h1>
           <p>To finish password recovery please follow the link below:

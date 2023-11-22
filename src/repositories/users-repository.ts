@@ -69,17 +69,17 @@ export const usersRepository = {
     }, 
     
     async findByLoginOrEmail(loginOrEmail: string) {
-        const user = await UserModel.findOne({$or: [{email: loginOrEmail}, {login: loginOrEmail}]}).lean()
+        const user = await UserModel.findOne({$or: [{email: loginOrEmail}, {login: loginOrEmail}]})
         return user
     },
 
     async findUserByEmail(email: string) {
-        const user = await UserModel.findOne({email: email}).lean()
+        const user = await UserModel.findOne({email: email})
         return user
     },
 
     async findUserByConfirmationCode(emailConfirmationCode: string) {
-        const user = await UserModel.findOne({"emailConfirmation.confirmationCode": emailConfirmationCode}).lean()
+        const user = await UserModel.findOne({"emailConfirmation.confirmationCode": emailConfirmationCode})
         return user
     },
     

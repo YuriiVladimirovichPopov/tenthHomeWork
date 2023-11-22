@@ -63,13 +63,13 @@ authRouter.post('/password-recovery',
         }
         const recoveryCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-        await UserModel.updateOne({ _id: user._id }, { $set: {recoveryCode} });
-        await UserModel.findOne({ _id: user._id })
+        await UserModel.updateOne({ id: user._id }, { $set: {recoveryCode} });
+        await UserModel.findOne({ id: user._id })
         await UserModel.findOne({ recoveryCode })
        
     try { 
         emailAdapter.sendEmailWithRecoveryCode(user.email, recoveryCode); 
-            return res.status(sendStatus.NO_CONTENT_204).send({ message: 'Ok' });
+            return res.status(sendStatus.NO_CONTENT_204).send({ message: 'Recovery code sent' });
       
     } catch (error) {
         return res.status(sendStatus.INTERNAL_SERVER_ERROR_500).send({ error });
