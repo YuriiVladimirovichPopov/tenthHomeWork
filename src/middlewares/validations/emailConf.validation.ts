@@ -22,13 +22,13 @@ import { usersRepository } from '../../repositories/users-repository';
                                             .isString()
                                             .withMessage('must be a valid email')
                                             .isEmail()
-                                            .custom(async (email) => {
+                                            /* .custom(async (email) => {
                                                 const user = await usersRepository.findUserByEmail(email)
                                                 if (!user) {
                                                     throw new Error ('User with this email not found')
                                                 }
                                                 return true
-                                            })
+                                            }) */
 
 export const emailConfValidation = [emailConfirmationValidation, inputValidationErrors]
 export const emailWithRecoveryCodeValidation = [recoveryCodeByEmail, inputValidationErrors]

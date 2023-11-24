@@ -63,8 +63,8 @@ authRouter.post('/password-recovery',
         }
         const recoveryCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-        await UserModel.updateOne({ id: user._id }, { $set: {recoveryCode} });
-        await UserModel.findOne({ id: user._id })
+        await UserModel.updateOne({ id: user.id }, { $set: {recoveryCode} });
+        await UserModel.findOne({ id: user.id })
         await UserModel.findOne({ recoveryCode })
        
     try { 
@@ -77,11 +77,12 @@ authRouter.post('/password-recovery',
 })
 
 authRouter.post('/new-password', 
+    customRateLimit,
     forCreateNewPasswordValidation,
-    customRateLimit, 
     async(req: Request, res: Response) => {
         const { newPassword, recoveryCode } = req.body;
         const user = await UserModel.findOne({ recoveryCode });
+        console.log('user by code', user)
             if (!user) {
                 return res.status(sendStatus.BAD_REQUEST_400).send({ errorsMessages: [{
                     message: 'send recovery code',

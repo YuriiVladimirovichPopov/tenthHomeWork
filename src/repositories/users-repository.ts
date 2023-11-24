@@ -7,6 +7,7 @@ import { UserCreateViewModel } from "../models/users/createUser";
 import { UserModel } from "../domain/schemas/users.schema";
 import { authService } from '../application/auth-service';
 import { randomUUID } from 'crypto';
+import bcrypt from 'bcrypt';
 
 
 export const usersRepository = {
@@ -115,12 +116,13 @@ export const usersRepository = {
     },
 
     async resetPasswordWithRecoveryCode( _id: string, newPassword: string): Promise<any> {
-      
-        const newHashedPassword = await authService.hashPassword(newPassword);
+        
+        const newPasswordSalt = await bcrypt.genSalt(10)
+        const newHashedPassword = await authService._generateHash(newPassword, newPasswordSalt)
 
-        await UserModel.updateOne({ id: _id }, { $set: { passwordHash: newHashedPassword, recoveryCode: null} });
+        await UserModel.updateOne({ id: _id }, { $set: { passwordHash: newHashedPassword, passwordSalt: newPasswordSalt, recoveryCode: null} });
        
-        return { success: true };
+        return { success: true }
     }
 }
 
