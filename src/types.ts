@@ -18,7 +18,7 @@ import { EmailConfirmationType, UserViewModel } from './models/users/userViewMod
       shortDescription: string,
       content: string,
       blogId: string,
-      blogName: string,
+      blogName: string | null,
       createdAt: string
   }
 
