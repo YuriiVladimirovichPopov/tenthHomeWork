@@ -48,7 +48,7 @@ postsRouter.post('/:postId/comments',
     postWithId.id, 
     req.body.content, 
     { 
-      userId: req.user!.id, 
+      userId: req.user!._id.toString(), 
       userLogin: req.user!.login
     }
     )

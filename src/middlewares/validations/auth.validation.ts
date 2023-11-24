@@ -2,7 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import { jwtService } from "../../application/jwt-service";
 import { sendStatus } from "../../routers/send-status";
 import { UserModel } from "../../domain/schemas/users.schema";
-import { UserViewModel } from '../../models/users/userViewModel';
 import { ObjectId } from 'mongodb';
 
 
@@ -26,16 +25,9 @@ const userId = await jwtService.getUserIdByToken(token)
 const user = await UserModel.findOne({_id: new ObjectId(userId)})
     if (!user) {
         return res.sendStatus(sendStatus.UNAUTHORIZED_401)
-    }
-        
-const mappedUser: UserViewModel = {
-    id: user._id.toString(),
-    login: user.login,
-    email: user.email,
-    createdAt: user.createdAt,
-    emailConfirmation: user.emailConfirmation  
-}
-    req.user = mappedUser
+    }  
+
+    req.user = user
     
     next()
     return;  

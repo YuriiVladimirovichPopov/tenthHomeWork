@@ -26,7 +26,7 @@ commentsRouter.put('/:commentId', authMiddleware, createPostValidationForComment
         return res.sendStatus(sendStatus.NOT_FOUND_404); 
     }
     
-    if (existingComment.commentatorInfo.userId !== user.id) {
+    if (existingComment.commentatorInfo.userId !== user._id.toString()) {
       return res.sendStatus(sendStatus.FORBIDDEN_403)
     }
     
@@ -46,7 +46,7 @@ commentsRouter.delete('/:commentId', authMiddleware, async (req: Request<{commen
             return res.sendStatus(sendStatus.NOT_FOUND_404)
         }  
       const commentUserId = comment.commentatorInfo.userId
-        if (commentUserId !== user.id) {
+        if (commentUserId !== user._id.toString()) {
           return res.sendStatus(sendStatus.FORBIDDEN_403)
         }
       const commentDelete = await commentsRepository.deleteComment(req.params.commentId);
