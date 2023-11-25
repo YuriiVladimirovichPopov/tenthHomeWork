@@ -1,6 +1,5 @@
 import { body } from "express-validator"
 import { inputValidationErrors } from "../input-validation-middleware"; 
-import { usersRepository } from '../../repositories/users-repository';
 
     const emailConfirmationValidation = body('email')
                                                     .isString()
@@ -18,7 +17,7 @@ import { usersRepository } from '../../repositories/users-repository';
                                                         }
                                                         return true; 
                                                         }) */
-    /* const recoveryCodeByEmail = body('email')
+    const recoveryCodeByEmail = body('email')
                                             .isString()
                                             .withMessage('must be a valid email')
                                             .trim()
@@ -29,7 +28,7 @@ import { usersRepository } from '../../repositories/users-repository';
                                                     throw new Error ('User with this email not found')
                                                 }
                                                 return true 
-                                            })*/
- 
+                                            }) */
+  
 export const emailConfValidation = [emailConfirmationValidation, inputValidationErrors]
-export const emailWithRecoveryCodeValidation = [ inputValidationErrors]
+export const emailWithRecoveryCodeValidation = [recoveryCodeByEmail, inputValidationErrors]
