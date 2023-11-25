@@ -76,7 +76,7 @@ export const usersRepository = {
         return user
     },
 
-    async findUserByEmail(email: string) {
+    async findUserByEmail(email: string): Promise<UsersMongoDbType | null> {
         const user = await UserModel.findOne({email: email})
         return user
     },
@@ -115,12 +115,12 @@ export const usersRepository = {
         }
     },
 
-    async resetPasswordWithRecoveryCode( _id: string, newPassword: string): Promise<any> {
+    async resetPasswordWithRecoveryCode( _id: ObjectId, newPassword: string): Promise<any> {
         
         const newPasswordSalt = await bcrypt.genSalt(10)
         const newHashedPassword = await authService._generateHash(newPassword, newPasswordSalt)
 
-        await UserModel.updateOne({ id: _id }, { $set: { passwordHash: newHashedPassword, passwordSalt: newPasswordSalt, recoveryCode: null} });
+        await UserModel.updateOne({ _id: _id }, { $set: { passwordHash: newHashedPassword, passwordSalt: newPasswordSalt, recoveryCode: null} });
        
         return { success: true }
     }

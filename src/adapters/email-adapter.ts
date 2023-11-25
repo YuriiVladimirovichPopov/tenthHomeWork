@@ -40,6 +40,6 @@ export const emailAdapter = {
              <a href='https://somesite.com/password-recovery?recoveryCode=${recoveryCode}'>recovery password</a>
          </p>`
         })
-    return !!info
+    return info
     }
 }

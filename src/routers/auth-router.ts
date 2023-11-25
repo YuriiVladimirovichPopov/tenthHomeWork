@@ -56,17 +56,22 @@ authRouter.post('/password-recovery',
     customRateLimit, 
     async(req: Request, res: Response) => {
         const email = req.body.email
-        const user = await usersRepository.findUserByEmail(email)
-
+        const user: UsersMongoDbType | null = await usersRepository.findUserByEmail(email)
+        console.log("password recovery123")
         if (!user) {
-            return res.status(sendStatus.NOT_FOUND_404).send('User not found')
+            console.log("no user")
+            return res.sendStatus(sendStatus.NO_CONTENT_204)
         }
-        const recoveryCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const recoveryCode = Math.floor(100000 + Math.random() * 900000).toString()
 
-        await UserModel.updateOne({ id: user.id }, { $set: {recoveryCode} });
-        await UserModel.findOne({ id: user.id })
-        await UserModel.findOne({ recoveryCode })
-       
+        const updating = await UserModel.updateOne({ _id: user._id }, { $set: {recoveryCode} })   // унести в репу
+        console.log('isUpdate:', updating.modifiedCount)
+
+        const updatedUser = await UserModel.findOne({ _id: user._id })
+        console.log('user with recovery code:', updatedUser)
+
+        const userByCode = await UserModel.findOne({ recoveryCode })
+        console.log('recoveryCode:',recoveryCode)   
     try { 
         emailAdapter.sendEmailWithRecoveryCode(user.email, recoveryCode); 
             return res.status(sendStatus.NO_CONTENT_204).send({ message: 'Recovery code sent' });
@@ -77,10 +82,12 @@ authRouter.post('/password-recovery',
 })
 
 authRouter.post('/new-password', 
-    customRateLimit,
     forCreateNewPasswordValidation,
+    customRateLimit,
     async(req: Request, res: Response) => {
         const { newPassword, recoveryCode } = req.body;
+        console.log('user with new password', newPassword)
+        console.log('recovery code', recoveryCode)
         const user = await UserModel.findOne({ recoveryCode });
         console.log('user by code', user)
             if (!user) {
@@ -89,7 +96,7 @@ authRouter.post('/new-password',
                     field: 'recoveryCode'
                 }]});
             }
-        const result = await usersRepository.resetPasswordWithRecoveryCode(user.id, newPassword);
+        const result = await usersRepository.resetPasswordWithRecoveryCode(user._id, newPassword);
             if (result.success) {
                 return res.status(sendStatus.NO_CONTENT_204).send('code is valid and new password is accepted');
             }

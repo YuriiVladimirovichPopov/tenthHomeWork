@@ -38,7 +38,7 @@ export const authService = {
         console.log(createResult, "createResult") 
        
         try {
-            const res = await emailManager.sendEmail(newUser.email, newUser.emailConfirmation.confirmationCode)
+            await emailManager.sendEmail(newUser.email, newUser.emailConfirmation.confirmationCode)
         } catch (error) { 
         }
         return createResult
